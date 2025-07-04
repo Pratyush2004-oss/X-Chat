@@ -9,16 +9,28 @@ import { connectDB } from './config/db.js';
 import userRoutes from './routes/user.route.js'
 import postRoutes from './routes/post.route.js'
 import commentRoutes from './routes/comment.route.js';
+import NotificationRoutes from './routes/notifications.route.js';
+
+// importing arcjet middleware for security purposes
+import { arcjetMiddleware } from './middleware/arcjet.middleware.js';
+import job from './config/cron.js';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+job.start();
 
 app.use(clerkMiddleware());
+app.use(arcjetMiddleware);
+
+app.get("/", (req, res) => {
+    res.send("X-chat is now Live");
+})
 
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/notifications', NotificationRoutes);
 
 // error handling middleware
 app.use((err, req, res, next) => {

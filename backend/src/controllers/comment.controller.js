@@ -4,6 +4,7 @@ import Comment from "../models/comment.model.js";
 import Notification from "../models/notification.model.js";
 import Posts from "../models/post.model.js";
 import { getAuth } from "@clerk/express";
+import mongoose from "mongoose";
 
 
 // get all comments
@@ -30,15 +31,30 @@ export const createComment = asyncHandler(async (req, res) => {
 
     if (!user || !post) return res.status(404).json({ error: "Post or user not found" });
 
-    const commnet = await Comment.create({
-        content,
-        post: postId,
-        user: user._id
-    })
-    // link comment to the post
-    await Posts.findByIdAndUpdate(postId, {
-        $push: { comments: commnet._id },
-    });
+    const session = await mongoose.startSession();
+    let comment;
+    try {
+        await session.withTransaction(async () => {
+            comment = await Comment.create({
+                content,
+                post: postId,
+                user: user._id
+            })
+        }, { session });
+
+        // link comment to the post
+        await session.withTransaction(async () => {
+            await Posts.findByIdAndUpdate(postId, {
+                $push: { comments: comment._id },
+            });
+        }, { session })
+    } catch (error) {
+        console.log("Error in creating comment: ", error);
+        return res.status(500).json({ error: "Error in creating comment" });
+    }
+    finally {
+        await session.endSession();
+    }
 
     // create notification if not commenting on your own post
     if (!post.user.toString() !== user._id.toString()) {
@@ -47,10 +63,10 @@ export const createComment = asyncHandler(async (req, res) => {
             to: post.user,
             post: postId,
             type: "comment",
-            comment: commnet._id,
+            comment: comment._id,
         })
     }
-    res.status(201).json({ comment })
+    res.status(201).json({ comment });
 });
 
 // deleting a comment
@@ -71,6 +87,9 @@ export const deleteComment = asyncHandler(async (req, res) => {
     await Posts.findByIdAndUpdate(postId, {
         $pull: { comments: commentId }
     });
+
+    // deleting the notification also
+    await Notification.findOneAndDelete({ comment: commentId });
 
     // deleting the comment
     await Comment.findByIdAndDelete(commentId);
