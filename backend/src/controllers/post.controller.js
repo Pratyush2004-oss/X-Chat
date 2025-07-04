@@ -8,8 +8,16 @@ import Comment from '../models/comment.model.js';
 
 // get all posts
 export const getPosts = asyncHandler(async (req, res) => {
+    const limit = req.query.limit || 15;
+    const page = req.query.page || 1;
+    const skip = (page - 1) * limit;
+
+    const totalPosts = await Posts.countDocuments();
+
     const posts = await Posts.find()
         .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
         .populate("user", "username firstName lastName profilePicture")
         .populate({
             path: "comments",
@@ -18,7 +26,12 @@ export const getPosts = asyncHandler(async (req, res) => {
                 select: "username firstName lastName profilePicture"
             }
         })
-    res.status(200).json({ posts })
+    res.status(200).json({
+        posts,
+        currentPage: page,
+        totalPosts,
+        totalPages: Math.ceil(totalPosts / limit)
+    })
 })
 
 // get single post details
