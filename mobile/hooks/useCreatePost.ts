@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useAPIClient } from "@/utils/api";
+import { AxiosError, AxiosResponse } from "axios";
 
 export const useCreatePost = () => {
   const [content, setContent] = useState("");
@@ -26,7 +27,6 @@ export const useCreatePost = () => {
           webp: "image/webp",
         };
         const mimeType = mimeTypeMap[fileType] || "image/jpeg";
-
         formData.append("image", {
           uri: postData.imageUri,
           name: `image.${fileType}`,
@@ -44,8 +44,9 @@ export const useCreatePost = () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       Alert.alert("Success", "Post created successfully!");
     },
-    onError: () => {
-      Alert.alert("Error", "Failed to create post. Please try again.");
+    onError: (error: AxiosError) => {
+      console.log(error.response?.data);
+      Alert.alert("Error","Failed to create post. Please try again.");
     },
   });
 
@@ -56,7 +57,10 @@ export const useCreatePost = () => {
 
     if (permissionResult.status !== "granted") {
       const source = useCamera ? "camera" : "photo library";
-      Alert.alert("Permission needed", `Please grant permission to access your ${source}`);
+      Alert.alert(
+        "Permission needed",
+        `Please grant permission to access your ${source}`
+      );
       return;
     }
 
@@ -64,6 +68,7 @@ export const useCreatePost = () => {
       allowsEditing: true,
       aspect: [16, 9] as [number, number],
       quality: 0.8,
+      base64: true,
     };
 
     const result = useCamera
@@ -78,7 +83,10 @@ export const useCreatePost = () => {
 
   const createPost = () => {
     if (!content.trim() && !selectedImage) {
-      Alert.alert("Empty Post", "Please write something or add an image before posting!");
+      Alert.alert(
+        "Empty Post",
+        "Please write something or add an image before posting!"
+      );
       return;
     }
 

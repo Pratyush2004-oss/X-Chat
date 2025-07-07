@@ -5,6 +5,7 @@ import { getAuth } from '@clerk/express';
 import cloudinary from '../config/cloudinary.js';
 import Notification from '../models/notification.model.js';
 import Comment from '../models/comment.model.js';
+import getDataUri from '../config/dataUri.js';
 
 // get all posts
 export const getPosts = asyncHandler(async (req, res) => {
@@ -87,8 +88,8 @@ export const createPost = asyncHandler(async (req, res) => {
     // upload image to cloudinary
     if (imageFile) {
         try {
-            const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
-            const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+            const fileUri = getDataUri(imageFile);
+            const uploadResponse = await cloudinary.uploader.upload(fileUri.content, {
                 folder: "social_media_posts",
                 resource_type: "image",
                 transformation: [
