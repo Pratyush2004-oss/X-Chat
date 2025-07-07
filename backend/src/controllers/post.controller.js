@@ -105,7 +105,7 @@ export const createPost = asyncHandler(async (req, res) => {
         }
     }
 
-    const post = await Posts.create({ user: user._id, content: content || "", imageUrl });
+    const post = await Posts.create({ user: user._id, content: content || "", image: imageUrl });
     res.status(200).json({ post });
 })
 

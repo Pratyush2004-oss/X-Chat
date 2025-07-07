@@ -33,6 +33,7 @@ export const useCreatePost = () => {
           type: mimeType,
         } as any);
       }
+      console.log(formData.getAll("image"));
 
       return api.post("/posts", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -46,7 +47,7 @@ export const useCreatePost = () => {
     },
     onError: (error: AxiosError) => {
       console.log(error.response?.data);
-      Alert.alert("Error","Failed to create post. Please try again.");
+      Alert.alert("Error", "Failed to create post. Please try again.");
     },
   });
 
@@ -95,7 +96,6 @@ export const useCreatePost = () => {
     };
 
     if (selectedImage) postData.imageUri = selectedImage;
-
     createPostMutation.mutate(postData);
   };
 
