@@ -17,13 +17,23 @@ export const createApiClient = (
     },
   });
 
-  api.interceptors.request.use(async (config) => {
-    const token = await getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+  api.interceptors.request.use(
+    async (config) => {
+      try {
+        const token = await getToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      } catch (error) {
+        return config;
+      }
+    },
+    (error) => {
+      return Promise.reject(error);
     }
-    return config;
-  });
+  );
+
   return api;
 };
 
