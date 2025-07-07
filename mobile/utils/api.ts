@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import { useAuth } from "@clerk/clerk-expo";
 
 const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "https://x-chat-dusky.vercel.app/api";
+  process.env.EXPO_PUBLIC_API_URL || "https://x-clone-rn.vercel.app/api";
 // ! 🔥 localhost api would not work on your actual physical device
 // const API_BASE_URL = "http://localhost:5001/api";
 
@@ -10,7 +10,12 @@ const API_BASE_URL =
 export const createApiClient = (
   getToken: () => Promise<string | null>
 ): AxiosInstance => {
-  const api = axios.create({ baseURL: API_BASE_URL });
+  const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+      "User-Agent": "xChat/1.0.0",
+    },
+  });
 
   api.interceptors.request.use(async (config) => {
     const token = await getToken();
@@ -51,4 +56,3 @@ export const commentAPI = {
   createComment: (api: AxiosInstance, postId: string, content: string) =>
     api.post(`/comments/post/${postId}`, { content }),
 };
-
