@@ -101,7 +101,7 @@ export const createPost = asyncHandler(async (req, res) => {
             imageUrl = uploadResponse.secure_url;
         } catch (uploadError) {
             console.log("Error uploading image to cloudinary", uploadError);
-            return res.status(500).json({ error: "Failed to upload image" });
+            return res.status(400).json({ error: "Failed to upload image" });
         }
     }
 
