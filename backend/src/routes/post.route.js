@@ -10,7 +10,7 @@ router.get('/:postId', getSinglePost);
 router.get('/user/:username', getUserPosts)
 
 // protected routes
-router.post('/', ProtectRoute, upload.single("image"), createPost)
+router.post('/', ProtectRoute, upload, createPost);
 router.get("/:postId/like", ProtectRoute,likePost);
 router.delete("/:postId/delete", ProtectRoute, deletePost)
 

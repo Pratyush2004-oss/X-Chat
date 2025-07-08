@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Alert } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import { useAPIClient } from "@/utils/api";
-import { AxiosError, AxiosResponse } from "axios";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
+import { Alert } from "react-native";
 
 export const useCreatePost = () => {
   const [content, setContent] = useState("");
@@ -76,7 +76,7 @@ export const useCreatePost = () => {
       ? await ImagePicker.launchCameraAsync(pickerOptions)
       : await ImagePicker.launchImageLibraryAsync({
           ...pickerOptions,
-          mediaTypes: ["images"],
+          mediaTypes: "images",
         });
 
     if (!result.canceled) setSelectedImage(result.assets[0].uri);
