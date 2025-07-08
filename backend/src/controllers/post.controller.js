@@ -80,6 +80,7 @@ export const createPost = asyncHandler(async (req, res) => {
     const imageFile = req.file;
 
     if (!content && !imageFile) return res.status(400).json({ error: "Either content or image is required for the post" });
+    
     const user = await User.findOne({ clerkId: userId });
     if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -87,8 +88,8 @@ export const createPost = asyncHandler(async (req, res) => {
 
     // upload image to cloudinary
     if (imageFile) {
+        const fileUri = getDataUri(imageFile);
         try {
-            const fileUri = getDataUri(imageFile);
             const uploadResponse = await cloudinary.uploader.upload(fileUri.content, {
                 folder: "social_media_posts",
                 resource_type: "image",

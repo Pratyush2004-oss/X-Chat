@@ -46,7 +46,7 @@ export const useCreatePost = () => {
       Alert.alert("Success", "Post created successfully!");
     },
     onError: (error: AxiosError) => {
-      console.log(error.response?.data);
+      console.error(error.response?.data);
       Alert.alert("Error", "Failed to create post. Please try again.");
     },
   });
